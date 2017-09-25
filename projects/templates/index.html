@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Hi {{ request.user }}</h1>
+    <a class="btn btn-sm btn-danger" href="/logout" type="submit">Logout</a>
+    <div class="time  row">
+        <div class="col-12">
+            <h4>Your Projects:</h4>
+            <form method="POST" action="">{% csrf_token %}
+                <div class="form-group">
+                    <select id="project_id" class="custom-select mb-2 mr-sm-2 mb-sm-0" name="project_id" required>
+                        <option selected="selected" value="">Choose...</option>
+                        {% for obj in project_list %}
+                            {% if obj.user_id == request.user.id %}
+                            <option value="{{ obj.id }}">
+                                {{ obj.project_name }}
+                            </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="hide-group" style="display: none">
+                    <div class="form-group">
+                        <h4>Add Entry</h4>
+                        <table id="entry" class="table table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="agenda-date" style=" width: 210px; ">
+                                    <input type="text" class="form-control" value="" name="date"  required>
+                                </td>
+                                <td class="agenda-time" style=" width: 260px; ">
+                                    <select name="time" class="custom-select mb-2 mr-sm-2 mb-sm-0"  required>
+                                        <option selected="selected" value="">Select Hour</option>
+                                        <option value="00:00:00">00</option>
+                                        <option value="00:01:00">01</option>
+                                        <option value="00:02:00">02</option>
+                                        <option value="00:03:00">03</option>
+                                        <option value="00:04:00">04</option>
+                                        <option value="00:05:00">05</option>
+                                        <option value="00:06:00">06</option>
+                                        <option value="00:07:00">07</option>
+                                        <option value="00:08:00">08</option>
+                                        <option value="00:09:00">09</option>
+                                        <option value="00:10:00">10</option>
+                                        <option value="00:11:00">11</option>
+                                        <option value="00:12:00">12</option>
+                                    </select>
+                                </td>
+                                <td class="agenda-events">
+                                    <div class="agenda-event">
+                                        <input type="text" class="form-control" name="remarks" value="" required>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                    <button class="btn btn-lg btn-danger float-sm-right" type="submit">Add Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="w-100 d-block h-25"></div>{{ form.as_p }}
+    <div class="logs row ">
+        <div class="col-4">
+             <h4>Logs</h4>
+            <div id="sandbox-container">
+                <div></div>
+            </div>
+            <input type="hidden" id="my_hidden_input">
+        </div>
+        <div class="col-8">
+            <table id="logs" class="table table-condensed table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="div1">
+
+                    <!-- Multiple events in a single day (note the rowspan) -->
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        jQuery(document).ready(function() {
+          $('.agenda-date input').datepicker({
+              format: "yyyy-mm-dd"
+          });
+
+          $('#sandbox-container div').datepicker({
+              format: "yyyy-mm-dd",
+              clearBtn: true,
+              calendarWeeks: true,
+              todayHighlight: true
+          }).on('changeDate', function() {
+            var my_date = $(this).datepicker('getFormattedDate');
+//            console.log(my_date);
+            $('#my_hidden_input').html(my_date);
+
+            $.ajax({
+                method: "GET",
+                url: '{% url "show_date" %}',
+                data: {
+                    date : my_date
+                },
+                dataType: 'json',
+                success: function (data) {
+
+                console.log(data);
+                  $("#div1").html(data.content);
+                }
+              });
+
+
+//            $.get( '{% url "show_date" %}', { name: "John", time: "2pm" } );
+
+          });
+
+          $("#project_id").change(function () {
+            $('.hide-group').show();
+          })
+
+        });
+    </script>
+
+{% endblock %}

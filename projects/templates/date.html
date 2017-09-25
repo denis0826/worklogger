@@ -1,0 +1,15 @@
+{% for obj in project_log %}
+<tr class="{{ forloop.counter }}">
+        <td class="agenda-date ">
+            <div class="dayofmonth">{{ obj.date }}</div>
+        </td>
+        <td class="agenda-time">
+            {{ obj.time }}
+        </td>
+        <td class="agenda-events">
+            <div class="agenda-event">
+                <li>{{ obj.remarks }}</li>
+            </div>
+        </td>
+    </tr>
+{% endfor %}
